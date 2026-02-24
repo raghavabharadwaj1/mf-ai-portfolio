@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | MF AI Portfolio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-primary px-4">
+    <span class="navbar-brand fw-bold">MF AI Portfolio</span>
+    <div class="d-flex align-items-center">
+        <span class="text-white me-3">Welcome, {{ user }}</span>
+        <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-5">
+
+    <!-- FUND SELECT FORM -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h5 class="mb-3">Select Fund</h5>
+
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6">
+                    <select name="fund_code" class="form-select" required>
+                        <option value="">-- Select Fund --</option>
+                        {% for fund in funds %}
+                            <option value="{{ fund[0] }}"
+                                {% if code == fund[0] %} selected {% endif %}>
+                                {{ fund[0] }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Analyze
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- RESULT CARD -->
+   {% if cagr_1 is not none %}
+<div class="row g-4 mt-4">
+
+    <div class="col-md-3">
+        <div class="card shadow-sm p-3">
+            <h6 class="text-muted">1-Year CAGR</h6>
+            <h4 class="text-success">{{ cagr_1 }} %</h4>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm p-3">
+            <h6 class="text-muted">3-Year CAGR</h6>
+            <h4 class="text-success">{{ cagr_3 }} %</h4>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm p-3">
+            <h6 class="text-muted">5-Year CAGR</h6>
+            <h4 class="text-success">{{ cagr_5 }} %</h4>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+    <div class="card shadow-sm p-3">
+        <h6 class="text-muted">Risk Score (Volatility)</h6>
+
+        {% if volatility is not none %}
+            <h5>{{ volatility }} %</h5>
+
+            {% if risk_level == "Low" %}
+                <span class="badge bg-success">Low Risk</span>
+            {% elif risk_level == "Moderate" %}
+                <span class="badge bg-warning text-dark">Moderate Risk</span>
+            {% else %}
+                <span class="badge bg-danger">High Risk</span>
+            {% endif %}
+
+        {% else %}
+            <p>Data Not Available</p>
+        {% endif %}
+       </div>
+    </div>
+    <div class="col-md-3">
+    <div class="card shadow-sm p-3">
+        <h6 class="text-muted">Max Drawdown</h6>
+
+        {% if drawdown is not none %}
+            <h4 class="text-danger">{{ drawdown }} %</h4>
+        {% else %}
+            <p>Data Not Available</p>
+        {% endif %}
+    </div>
+</div>
+      {% if labels %}
+<div class="card shadow-sm p-4 mt-4">
+    <h5 class="mb-3">NAV Growth Chart</h5>
+    <canvas id="navChart"></canvas>
+</div>
+{% endif %}
+{% if cagr is not none %}
+<div class="mt-4">
+    <a href="/export_pdf/{{ code }}" class="btn btn-dark">
+        Export to PDF
+    </a>
+</div>
+{% endif %}
+</div>
+{% endif %}
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% if labels %}
+<script>
+    const ctx = document.getElementById('navChart');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ labels | tojson }},
+            datasets: [{
+                label: 'NAV',
+                data: {{ nav_values | tojson }},
+                borderWidth: 2,
+                tension: 0.3
+            }]
+        }
+    });
+</script>
+{% endif %}
+
+</body>
+</html>

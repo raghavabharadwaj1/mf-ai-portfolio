@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.pyc
+nav_chart.png
+Fund_Report.pdf
+.env
