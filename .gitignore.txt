@@ -3,4 +3,6 @@ __pycache__/
 *.pyc
 nav_chart.png
 Fund_Report.pdf
+MF_Report.pdf
+nav_chart.png
 .env
